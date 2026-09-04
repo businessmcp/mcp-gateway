@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # pnpm, not npm: the npm bundled with Node 22 dies with "Cannot read
+      # properties of null (reading 'edgesOut')" on this package.json (an
+      # optional peer that is also a devDependency). --no-frozen-lockfile
+      # because the published repo deliberately carries no lockfile.
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm vitest run
+      - run: pnpm tsc --noEmit

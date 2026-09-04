@@ -1,0 +1,36 @@
+{
+  "name": "@businessmcp/mcp-gateway",
+  "version": "0.1.0",
+  "description": "Hardening utilities for an MCP gateway: an SSRF guard that decodes IPv6, upstream failure classification, and collision-safe tool naming.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/businessmcp/mcp-gateway.git"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@modelcontextprotocol/client": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/client": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
+  }
+}
