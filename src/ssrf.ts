@@ -26,7 +26,7 @@ function blockedV4(a: number, b: number): boolean {
  * comes back as `::ffff:7f00:1`, in HEX. A guard that string-matches the dotted
  * form therefore never fires on a URL a caller actually passed.
  */
-function v6Groups(input: string): number[] | null {
+export function v6Groups(input: string): number[] | null {
   let s = input
   // A trailing dotted quad occupies the last two groups.
   const dotted = s.match(/^(.*:)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/)
