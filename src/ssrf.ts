@@ -87,7 +87,10 @@ export function isBlockedIp(ip: string): boolean {
   }
   const groups = v6Groups(v)
   // Unparseable input fails CLOSED: an address we cannot decode is one we
-  // cannot vouch for.
+  // cannot vouch for. Note this is reachable in normal operation, not just on
+  // hostile input — isPublicHttpUrl passes DNS results straight through, so a
+  // resolver returning something this parser does not understand is refused
+  // rather than assumed public.
   if (!groups) return true
   return blockedV6(groups)
 }
