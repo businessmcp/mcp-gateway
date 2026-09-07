@@ -15,6 +15,15 @@ function blockedV4(a: number, b: number): boolean {
   if (a === 192 && b === 168) return true // private
   if (a === 100 && b >= 64 && b <= 127) return true // CGNAT
   if (a >= 224) return true // multicast (224/4) + reserved (240/4)
+  // IETF special-purpose ranges that are routable-looking but never a legitimate
+  // fetch target. 192.0.0.0/24 and 192.88.99.0/24 (6to4 relay anycast) can reach real
+  // infrastructure; 198.18.0.0/15 is benchmark space; the three TEST-NET blocks are
+  // documentation-only and a request to one is always either a mistake or a probe.
+  if (a === 192 && b === 0) return true // 192.0.0.0/24 (IETF) + 192.0.2.0/24 TEST-NET-1
+  if (a === 192 && b === 88) return true // 192.88.99.0/24 6to4 relay anycast
+  if (a === 198 && (b === 18 || b === 19)) return true // 198.18.0.0/15 benchmark
+  if (a === 198 && b === 51) return true // 198.51.100.0/24 TEST-NET-2
+  if (a === 203 && b === 0) return true // 203.0.113.0/24 TEST-NET-3
   return false
 }
 
@@ -72,6 +81,13 @@ function blockedV6(g: number[]): boolean {
     return blockedV4(g[6] >> 8, g[6] & 0xff)
   // 2002::/16 — 6to4, embeds the v4 in groups 1-2
   if (g[0] === 0x2002) return blockedV4(g[1] >> 8, g[1] & 0xff)
+  // ::ffff:0:a.b.c.d — RFC 2765 IPv4-TRANSLATED (::ffff:0:0/96). Distinct from the
+  // IPv4-mapped form above: the 0xffff sits in group 4, not 5, so the `topZero` test
+  // (which requires g[4] === 0) skipped every unwrap branch and let it through.
+  if (g[0] === 0 && g[1] === 0 && g[2] === 0 && g[3] === 0 && g[4] === 0xffff && g[5] === 0)
+    return blockedV4(g[6] >> 8, g[6] & 0xff)
+  if ((g[0] & 0xffff) === 0x2001 && g[1] === 0) return true // 2001::/32 Teredo
+  if ((g[0] & 0xffc0) === 0xfec0) return true // fec0::/10 deprecated site-local
   if ((g[0] & 0xfe00) === 0xfc00) return true // fc00::/7 ULA
   if ((g[0] & 0xffc0) === 0xfe80) return true // fe80::/10 link-local
   if ((g[0] & 0xff00) === 0xff00) return true // ff00::/8 multicast
